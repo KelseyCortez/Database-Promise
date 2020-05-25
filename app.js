@@ -16,7 +16,7 @@ const config = {
 };
 const db = pgp(config);
 
-
+//Get all
 app.get('/api/restaurants', (req, res) => {
     db.query('SELECT * FROM restaurant')
         .then((results) => {
@@ -24,6 +24,7 @@ app.get('/api/restaurants', (req, res) => {
         });
 });
 
+//Get by id
 app.get('/api/restaurants/:id', (req, res) => {
     db.oneOrNone('SELECT * FROM restaurant WHERE restaurant.id = $1',
         req.params.id
@@ -42,6 +43,7 @@ app.get('/api/restaurants/:id', (req, res) => {
         });
 });
 
+//Post //is functional
 app.post('/api/restaurants', (req, res) => {
     db.one('INSERT INTO restaurant VALUES (DEFAULT, ${name}, ${distance}, ${rating}, ${category}, ${fav_dish}, ${takeout}, ${last_visit})RETURNING *;',
         req.body
@@ -50,9 +52,27 @@ app.post('/api/restaurants', (req, res) => {
     });
 });
 
-app.delete('/api/restaurants/:id', (req, res)=> {
-    db.oneOrNone('SELECT * FROM restaurant WHERE restaurant.id = $1', req.params.id
-    ).then((result)=> {
+//Delete  is functional
+app.delete('/api/restaurants/:id', (req, res) => {
+    console.log(req.params.id);
+    db.oneOrNone('DELETE FROM restaurant WHERE restaurant.id = $1 RETURNING *',
+        req.params.id
+    ).then((result) => {
+        if (result != null) {
+            res.json(`Deleted row ${result}`);
+        } else {
+            res.json({ error: 'Database Error' });
+        }
+    });
+});
+
+//Update //not functioning Need help 
+
+app.put('/api/restaurants/:id&:distance', (req, res) => {
+    console.log(req.body);
+    db.result('UPDATE restaurant set distance = ${distance} WHERE id = ${id} RETURNING *',
+    req.params
+    ).then((result) => {
         res.status(201).json(result);
     });
 });
